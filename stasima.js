@@ -50,6 +50,12 @@ function setup() {
 
   soundToggle = createCheckbox('<span style="color:white"> Ενεργοποίηση ήχου</span>', false);
   soundToggle.position(xLabel, yU + 45);
+  
+soundToggle.changed(() => {
+  if (soundToggle.checked()) {
+    userStartAudio();
+  }
+});
 
   // ===== Ήχος =====
   osc = new p5.Oscillator('sine');
