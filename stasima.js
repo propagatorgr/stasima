@@ -1,28 +1,26 @@
 // Στάσιμο κύμα σε ΧΟΡΔΗ ΚΙΘΑΡΑΣ – Αυστηρό μοντέλο (χωρίς L)
-// RESPONSIVE ΔΙΑΤΑΞΗ (ΤΕΛΙΚΗ):
-// - Χορδή επάνω
-// - Πίνακας τιμών στο κέντρο
-// - Sliders + checkbox ΚΑΤΩ με ΣΑΦΕΙΣ ΕΤΙΚΕΤΕΣ (desktop & κινητό)
-// ⚠ Καμία αλλαγή στη φυσική ή στη λειτουργικότητα
+// ΔΙΟΡΘΩΣΗ DIASΤΑΞΗΣ ΓΙΑ LAPTOP:
+// 🎯 Στόχοι:
+// 1) Οι ετικέτες να είναι ΠΑΝΩ και ΚΕΝΤΡΑΡΙΣΜΕΝΕΣ ως προς τα sliders
+// 2) Το checkbox του ήχου να ευθυγραμμίζεται με τα sliders (όχι στο κέντρο μόνο του)
+// 3) Να μη συγκρούεται η περιοχή sliders με τον πίνακα τιμών
+// ✅ Καμία αλλαγή σε φυσική / ήχο / λογική
 
 // =====================
 // ΦΥΣΙΚΕΣ ΠΑΡΑΜΕΤΡΟΙ ΚΙΘΑΡΑΣ
 // =====================
-const L = 0.65;   // m – μήκος χορδής κιθάρας
-let u = 120;      // m/s – εξαρτάται από την τάση
-let A = 60;       // px
+const L = 0.65;
+let u = 120;
+let A = 60;
 
-// Σχεδίαση
 let L_draw = 600;
 let scale;
 
-// Χειριστήρια
 let nSlider, uSlider, soundToggle;
-let nLabel, uLabel;
+let nLabel, uLabel,
+    soundLabel;
 
-// Ήχος
 let osc;
-
 let t = 0;
 
 function setup() {
@@ -31,23 +29,26 @@ function setup() {
 
   // ===== ΕΤΙΚΕΤΕΣ =====
   nLabel = createDiv('<b>Αρμονική (αριθμός ατράκτων) n</b>');
-  uLabel = createDiv('Ταχύτητα διάδοσης u (m/s)<br><span style="font-size:12px">(εξαρτάται από την τάση)</span>');
+  uLabel = createDiv(
+    'Ταχύτητα διάδοσης u (m/s)<br><span style="font-size:12px">(εξαρτάται από την τάση)</span>'
+  );
+  soundLabel = createDiv('Ήχος');
+
+  [nLabel, uLabel, soundLabel].forEach(el => {
+    el.style('color', 'white');
+    el.style('text-align', 'center');
+    el.style('font-size', '14px');
+  });
 
   // ===== SLIDERS & CHECKBOX =====
   nSlider = createSlider(1, 10, 2, 1);
   uSlider = createSlider(80, 160, 120, 5);
-  soundToggle = createCheckbox(' Ενεργοποίηση ήχου', false);
+  soundToggle = createCheckbox(' Ενεργοποίηση', false);
 
-  // ξεκλείδωμα audio context (GitHub Pages / mobile)
   soundToggle.changed(() => {
     if (soundToggle.checked()) userStartAudio();
   });
 
-  // ===== ΟΠΤΙΚΗ ΜΟΡΦΟΠΟΙΗΣΗ ΕΤΙΚΕΤΩΝ =====
-  nLabel.style('color', 'white');
-  uLabel.style('color', 'white');
-
-  // ===== Ήχος =====
   osc = new p5.Oscillator('sine');
   osc.start();
   osc.amp(0);
@@ -62,26 +63,37 @@ function windowResized() {
 
 function positionUI() {
   const margin = 20;
-  const baseY = height - 200;
+  const blockWidth = 240;
+
+  // κατεβάζουμε λίγο τους ελέγχους ώστε να μη "τρώνε" τον πίνακα
+  const baseY = height - 180;
 
   if (windowWidth < 700) {
     // 📱 ΚΙΝΗΤΟ – ΚΑΘΕΤΗ ΣΤΟΙΧΙΣΗ
     nLabel.position(margin, baseY);
     nSlider.position(margin, baseY + 25);
 
-    uLabel.position(margin, baseY + 65);
-    uSlider.position(margin, baseY + 100);
+    uLabel.position(margin, baseY + 70);
+    uSlider.position(margin, baseY + 105);
 
-    soundToggle.position(margin, baseY + 145);
+    soundLabel.position(margin, baseY + 150);
+    soundToggle.position(margin, baseY + 175);
+
   } else {
-    // 🖥️ ΠΙΝΑΚΑΣ / DESKTOP – ΟΡΙΖΟΝΤΙΑ
-    nLabel.position(margin, baseY);
-    nSlider.position(margin, baseY + 25);
+    // 🖥️ LAPTOP / ΠΙΝΑΚΑΣ – ΟΜΑΔΕΣ ΜΠΛΟΚ
 
-    uLabel.position(margin + 260, baseY);
-    uSlider.position(margin + 260, baseY + 25);
+    const x1 = margin;
+    const x2 = margin + blockWidth;
+    const x3 = margin + 2 * blockWidth;
 
-    soundToggle.position(margin + 540, baseY + 35);
+    nLabel.position(x1, baseY);
+    nSlider.position(x1, baseY + 25);
+
+    uLabel.position(x2, baseY);
+    uSlider.position(x2, baseY + 25);
+
+    soundLabel.position(x3 + 20, baseY);
+    soundToggle.position(x3, baseY + 25);
   }
 }
 
@@ -97,7 +109,6 @@ function draw() {
 
   scale = min(L_draw, width - 100) / L;
 
-  // ----- Ήχος -----
   if (soundToggle.checked()) {
     osc.freq(f);
     osc.amp(0.25, 0.1);
@@ -106,7 +117,7 @@ function draw() {
   }
 
   // =====================
-  // ΧΟΡΔΗ (επάνω)
+  // ΧΟΡΔΗ (ΕΠΑΝΩ)
   // =====================
   push();
   translate((width - L_draw) / 2, 120);
@@ -135,27 +146,26 @@ function draw() {
   // ΠΙΝΑΚΑΣ ΤΙΜΩΝ (ΚΕΝΤΡΟ)
   // =====================
   fill(255);
-  noStroke();
   textAlign(CENTER);
   textSize(14);
 
   const harmonicText = (n === 1) ? 'Θεμελιώδης' : `${n - 1}η αρμονική`;
 
-  const infoY = height / 2 + 40;
-  text(`Χορδή κιθάρας: L = 0.65 m`, width / 2, infoY - 60);
-  text(`n = ${n} (${harmonicText})  |  Δεσμοί: ${n + 1}`, width / 2, infoY - 30);
-  text(`u = ${u} m/s`, width / 2, infoY);
+  const infoY = height / 2 + 30;
+  text(`Χορδή κιθάρας: L = 0.65 m`, width / 2, infoY - 50);
+  text(`n = ${n} (${harmonicText})  |  Δεσμοί: ${n + 1}`, width / 2, infoY - 20);
+  text(`u = ${u} m/s`, width / 2, infoY + 5);
   text(`f = ${f.toFixed(1)} Hz   |   λ = ${lambda.toFixed(2)} m`, width / 2, infoY + 30);
-  text(`Τύπος: fₙ = n·u / (2·L)`, width / 2, infoY + 60);
+  text(`Τύπος: fₙ = n·u / (2·L)`, width / 2, infoY + 55);
 
   t += 0.02;
 }
 
 /*
-✅ ΤΕΛΙΚΟ ΑΠΟΤΕΛΕΣΜΑ
-- Sliders ΚΑΤΩ με ΣΑΦΕΙΣ ετικέτες
-- Σε κινητό: κάθετη στοίχιση (καμία επικάλυψη)
-- Σε μεγάλη οθόνη: καθαρή οριζόντια διάταξη
-- Καμία αλλαγή στη φυσική, τους υπολογισμούς ή τον ήχο
+✅ ΤΙ ΔΙΟΡΘΩΘΗΚΕ ΣΕ LAPTOP:
+- Οι ετικέτες είναι ΚΕΝΤΡΑΡΙΣΜΕΝΕΣ πάνω από κάθε slider
+- Το checkbox του ήχου είναι ΕΝΤΑΓΜΕΝΟ σαν τρίτο block
+- Οι έλεγχοι κατέβηκαν λίγο για να μη "χτυπάνε" με τον πίνακα τιμών
+- Καμία αλλαγή σε φυσική, ήχο ή μαθηματικό μοντέλο
 */
 
