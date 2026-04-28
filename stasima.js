@@ -1,100 +1,93 @@
 // Στάσιμο κύμα σε ΧΟΡΔΗ ΚΙΘΑΡΑΣ – Αυστηρό μοντέλο (χωρίς L)
-// ΔΙΟΡΘΩΣΗ DIASΤΑΞΗΣ ΓΙΑ LAPTOP:
-// 🎯 Στόχοι:
-// 1) Οι ετικέτες να είναι ΠΑΝΩ και ΚΕΝΤΡΑΡΙΣΜΕΝΕΣ ως προς τα sliders
-// 2) Το checkbox του ήχου να ευθυγραμμίζεται με τα sliders (όχι στο κέντρο μόνο του)
-// 3) Να μη συγκρούεται η περιοχή sliders με τον πίνακα τιμών
-// ✅ Καμία αλλαγή σε φυσική / ήχο / λογική
+// ✅ ΟΡΙΣΤΙΚΗ ΛΥΣΗ ΔΙΑΤΑΞΗΣ (χωρίς απολύτως καμία αλλαγή στη φυσική)
+// ΤΙ ΑΛΛΑΖΕΙ ΜΟΝΟ ΣΤΟ UI:
+// - Δημιουργείται ΣΤΑΘΕΡΗ ΚΑΤΩ ΜΠΑΡΑ (control bar)
+// - Όλα τα χειριστήρια μπαίνουν ΜΕΣΑ σε αυτή (flexbox)
+// - Τέλος τα position(x,y) που "σπάνε" σε laptop / κινητό
+// - Ίδια εμφάνιση παντού
 
 // =====================
 // ΦΥΣΙΚΕΣ ΠΑΡΑΜΕΤΡΟΙ ΚΙΘΑΡΑΣ
 // =====================
-const L = 0.65;
-let u = 120;
-let A = 60;
+const L = 0.65;   // m
+let u = 120;      // m/s
+let A = 60;       // px
 
 let L_draw = 600;
 let scale;
 
 let nSlider, uSlider, soundToggle;
-let nLabel, uLabel,
-    soundLabel;
-
 let osc;
 let t = 0;
+
+// containers
+let controlBar, nBlock, uBlock, soundBlock;
 
 function setup() {
   const canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent('stasima-holder');
 
-  // ===== ΕΤΙΚΕΤΕΣ =====
-  nLabel = createDiv('<b>Αρμονική (αριθμός ατράκτων) n</b>');
-  uLabel = createDiv(
-    'Ταχύτητα διάδοσης u (m/s)<br><span style="font-size:12px">(εξαρτάται από την τάση)</span>'
-  );
-  soundLabel = createDiv('Ήχος');
+  // =====================
+  // ΚΑΤΩ ΜΠΑΡΑ ΧΕΙΡΙΣΤΗΡΙΩΝ (HTML / FLEX)
+  // =====================
+  controlBar = createDiv();
+  controlBar.parent('stasima-holder');
+  controlBar.style('position', 'fixed');
+  controlBar.style('left', '0');
+  controlBar.style('bottom', '0');
+  controlBar.style('width', '100%');
+  controlBar.style('display', 'flex');
+  controlBar.style('justify-content', 'center');
+  controlBar.style('gap', '40px');
+  controlBar.style('padding', '12px 8px');
+  controlBar.style('background', 'rgba(0,0,0,0.92)');
+  controlBar.style('border-top', '1px solid #444');
+  controlBar.style('flex-wrap', 'wrap');
 
-  [nLabel, uLabel, soundLabel].forEach(el => {
-    el.style('color', 'white');
-    el.style('text-align', 'center');
-    el.style('font-size', '14px');
-  });
+  // ---------- Block n ----------
+  nBlock = createDiv();
+  nBlock.parent(controlBar);
+  nBlock.style('text-align', 'center');
+  nBlock.style('color', 'white');
 
-  // ===== SLIDERS & CHECKBOX =====
+  nBlock.html('<b>Αρμονική (αριθμός ατράκτων) n</b><br>');
   nSlider = createSlider(1, 10, 2, 1);
+  nSlider.parent(nBlock);
+
+  // ---------- Block u ----------
+  uBlock = createDiv();
+  uBlock.parent(controlBar);
+  uBlock.style('text-align', 'center');
+  uBlock.style('color', 'white');
+
+  uBlock.html('Ταχύτητα διάδοσης u (m/s)<br><span style="font-size:12px">(εξαρτάται από την τάση)</span><br>');
   uSlider = createSlider(80, 160, 120, 5);
+  uSlider.parent(uBlock);
+
+  // ---------- Block ήχου ----------
+  soundBlock = createDiv();
+  soundBlock.parent(controlBar);
+  soundBlock.style('text-align', 'center');
+  soundBlock.style('color', 'white');
+
+  soundBlock.html('Ήχος<br>');
   soundToggle = createCheckbox(' Ενεργοποίηση', false);
+  soundToggle.parent(soundBlock);
 
   soundToggle.changed(() => {
     if (soundToggle.checked()) userStartAudio();
   });
 
+  // =====================
+  // ΗΧΟΣ
+  // =====================
   osc = new p5.Oscillator('sine');
   osc.start();
   osc.amp(0);
-
-  positionUI();
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  positionUI();
-}
-
-function positionUI() {
-  const margin = 20;
-  const blockWidth = 240;
-
-  // κατεβάζουμε λίγο τους ελέγχους ώστε να μη "τρώνε" τον πίνακα
-  const baseY = height - 180;
-
-  if (windowWidth < 700) {
-    // 📱 ΚΙΝΗΤΟ – ΚΑΘΕΤΗ ΣΤΟΙΧΙΣΗ
-    nLabel.position(margin, baseY);
-    nSlider.position(margin, baseY + 25);
-
-    uLabel.position(margin, baseY + 70);
-    uSlider.position(margin, baseY + 105);
-
-    soundLabel.position(margin, baseY + 150);
-    soundToggle.position(margin, baseY + 175);
-
-  } else {
-    // 🖥️ LAPTOP / ΠΙΝΑΚΑΣ – ΟΜΑΔΕΣ ΜΠΛΟΚ
-
-    const x1 = margin;
-    const x2 = margin + blockWidth;
-    const x3 = margin + 2 * blockWidth;
-
-    nLabel.position(x1, baseY);
-    nSlider.position(x1, baseY + 25);
-
-    uLabel.position(x2, baseY);
-    uSlider.position(x2, baseY + 25);
-
-    soundLabel.position(x3 + 20, baseY);
-    soundToggle.position(x3, baseY + 25);
-  }
 }
 
 function draw() {
@@ -151,7 +144,7 @@ function draw() {
 
   const harmonicText = (n === 1) ? 'Θεμελιώδης' : `${n - 1}η αρμονική`;
 
-  const infoY = height / 2 + 30;
+  const infoY = height / 2 + 20;
   text(`Χορδή κιθάρας: L = 0.65 m`, width / 2, infoY - 50);
   text(`n = ${n} (${harmonicText})  |  Δεσμοί: ${n + 1}`, width / 2, infoY - 20);
   text(`u = ${u} m/s`, width / 2, infoY + 5);
@@ -162,10 +155,10 @@ function draw() {
 }
 
 /*
-✅ ΤΙ ΔΙΟΡΘΩΘΗΚΕ ΣΕ LAPTOP:
-- Οι ετικέτες είναι ΚΕΝΤΡΑΡΙΣΜΕΝΕΣ πάνω από κάθε slider
-- Το checkbox του ήχου είναι ΕΝΤΑΓΜΕΝΟ σαν τρίτο block
-- Οι έλεγχοι κατέβηκαν λίγο για να μη "χτυπάνε" με τον πίνακα τιμών
-- Καμία αλλαγή σε φυσική, ήχο ή μαθηματικό μοντέλο
+✅ ΤΕΛΙΚΟ ΑΠΟΤΕΛΕΣΜΑ (ΑΥΤΟ ΑΛΛΑΖΕΙ ΟΠΤΙΚΑ):
+- ΟΛΑ τα sliders + checkbox σε ενιαία ΚΑΤΩ ΜΠΑΡΑ
+- Σταθερή συμπεριφορά σε laptop / κινητό / πίνακα
+- Ετικέτα + χειριστήριο = ένα block
+- Τέλος τα layout προβλήματα
+- Η ΦΥΣΙΚΗ ΔΕΝ ΠΕΙΡΑΧΤΗΚΕ ΚΑΘΟΛΟΥ
 */
-
