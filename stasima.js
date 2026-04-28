@@ -26,7 +26,7 @@ let t = 0;
 
 function setup() {
   const canvas = createCanvas(windowWidth, windowHeight);
-  canvas.parent('sketch-holder');
+  canvas.parent('stasima-holder');
 
   // ----- Sliders & checkbox (κάτω) -----
   nSlider = createSlider(1, 10, 2, 1);
