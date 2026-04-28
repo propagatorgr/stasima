@@ -1,8 +1,8 @@
 // Στάσιμο κύμα σε ΧΟΡΔΗ ΚΙΘΑΡΑΣ – Αυστηρό μοντέλο (χωρίς L)
-// RESPONSIVE ΔΙΑΤΑΞΗ:
+// RESPONSIVE ΔΙΑΤΑΞΗ (ΤΕΛΙΚΗ):
 // - Χορδή επάνω
 // - Πίνακας τιμών στο κέντρο
-// - Sliders + checkbox ΚΑΤΩ (stack σε κινητό)
+// - Sliders + checkbox ΚΑΤΩ με ΣΑΦΕΙΣ ΕΤΙΚΕΤΕΣ (desktop & κινητό)
 // ⚠ Καμία αλλαγή στη φυσική ή στη λειτουργικότητα
 
 // =====================
@@ -18,6 +18,7 @@ let scale;
 
 // Χειριστήρια
 let nSlider, uSlider, soundToggle;
+let nLabel, uLabel;
 
 // Ήχος
 let osc;
@@ -28,7 +29,11 @@ function setup() {
   const canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent('stasima-holder');
 
-  // ----- Sliders & checkbox (κάτω) -----
+  // ===== ΕΤΙΚΕΤΕΣ =====
+  nLabel = createDiv('<b>Αρμονική (αριθμός ατράκτων) n</b>');
+  uLabel = createDiv('Ταχύτητα διάδοσης u (m/s)<br><span style="font-size:12px">(εξαρτάται από την τάση)</span>');
+
+  // ===== SLIDERS & CHECKBOX =====
   nSlider = createSlider(1, 10, 2, 1);
   uSlider = createSlider(80, 160, 120, 5);
   soundToggle = createCheckbox(' Ενεργοποίηση ήχου', false);
@@ -38,7 +43,11 @@ function setup() {
     if (soundToggle.checked()) userStartAudio();
   });
 
-  // ----- Ήχος -----
+  // ===== ΟΠΤΙΚΗ ΜΟΡΦΟΠΟΙΗΣΗ ΕΤΙΚΕΤΩΝ =====
+  nLabel.style('color', 'white');
+  uLabel.style('color', 'white');
+
+  // ===== Ήχος =====
   osc = new p5.Oscillator('sine');
   osc.start();
   osc.amp(0);
@@ -53,18 +62,26 @@ function windowResized() {
 
 function positionUI() {
   const margin = 20;
-  const bottomY = height - 140;
+  const baseY = height - 200;
 
-  // κινητό: κάθετο stack
   if (windowWidth < 700) {
-    nSlider.position(margin, bottomY);
-    uSlider.position(margin, bottomY + 40);
-    soundToggle.position(margin, bottomY + 80);
+    // 📱 ΚΙΝΗΤΟ – ΚΑΘΕΤΗ ΣΤΟΙΧΙΣΗ
+    nLabel.position(margin, baseY);
+    nSlider.position(margin, baseY + 25);
+
+    uLabel.position(margin, baseY + 65);
+    uSlider.position(margin, baseY + 100);
+
+    soundToggle.position(margin, baseY + 145);
   } else {
-    // desktop / πίνακας: οριζόντια κάτω
-    nSlider.position(margin, bottomY);
-    uSlider.position(margin + 220, bottomY);
-    soundToggle.position(margin + 460, bottomY + 5);
+    // 🖥️ ΠΙΝΑΚΑΣ / DESKTOP – ΟΡΙΖΟΝΤΙΑ
+    nLabel.position(margin, baseY);
+    nSlider.position(margin, baseY + 25);
+
+    uLabel.position(margin + 260, baseY);
+    uSlider.position(margin + 260, baseY + 25);
+
+    soundToggle.position(margin + 540, baseY + 35);
   }
 }
 
@@ -115,7 +132,7 @@ function draw() {
   pop();
 
   // =====================
-  // ΠΙΝΑΚΑΣ ΤΙΜΩΝ (μεσαία ζώνη)
+  // ΠΙΝΑΚΑΣ ΤΙΜΩΝ (ΚΕΝΤΡΟ)
   // =====================
   fill(255);
   noStroke();
@@ -135,9 +152,10 @@ function draw() {
 }
 
 /*
-✅ Αποτελέσματα:
-- Sliders πάντα ΚΑΤΩ, ποτέ δίπλα
-- Σε κινητό: κάθετη στοίχιση (δεν ανακατεύονται)
-- Σε μεγάλη οθόνη: οριζόντια μπάρα ελέγχου
-- Καμία αλλαγή σε φυσική, υπολογισμούς ή ήχο
+✅ ΤΕΛΙΚΟ ΑΠΟΤΕΛΕΣΜΑ
+- Sliders ΚΑΤΩ με ΣΑΦΕΙΣ ετικέτες
+- Σε κινητό: κάθετη στοίχιση (καμία επικάλυψη)
+- Σε μεγάλη οθόνη: καθαρή οριζόντια διάταξη
+- Καμία αλλαγή στη φυσική, τους υπολογισμούς ή τον ήχο
 */
+
