@@ -144,7 +144,10 @@ function draw() {
   // ΧΟΡΔΗ (ΕΠΑΝΩ)
   // =====================
   push();
-  translate((width - L_draw) / 2, 120);
+ // Κατακόρυφη θέση χορδής: ασφαλής για mobile portrait
+const stringY = max(100, height * 0.22);
+translate((width - L_draw) / 2, stringY);
+
 
   stroke(200);
   line(0, 0, L_draw, 0);
