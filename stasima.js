@@ -53,13 +53,13 @@ function setup() {
     windowWidth,
     getViewportHeight() - CONTROL_BAR_HEIGHT
   );
-  canvas.parent('sketch-holder');
+  canvas.parent('stasima-holder');
 
   // ---------------------------------------------------
   // ΚΑΤΩ ΜΠΑΡΑ ΧΕΙΡΙΣΤΗΡΙΩΝ (HTML / FLEXBOX)
   // ---------------------------------------------------
   controlBar = createDiv();
-  controlBar.parent('sketch-holder');
+  controlBar.parent('stasima-holder');
   controlBar.style('position', 'fixed');
   controlBar.style('left', '0');
   controlBar.style('bottom', '0');
